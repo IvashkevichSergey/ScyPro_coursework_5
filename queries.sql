@@ -22,5 +22,6 @@ WHERE salary_from IS NOT NULL AND salary_to IS NOT NULL
      )
 
 -- Запрос на список всех вакансий, в названии которых содержатся переданные в метод слова
+-- (SQL запрос представлен для ознакомления, запрос НЕ работает вне модуля dbmanager.py
 for word in keywords.split():
     cur.execute(f"""SELECT * FROM vacancies WHERE vacancy_name LIKE '%{word}%'""")
