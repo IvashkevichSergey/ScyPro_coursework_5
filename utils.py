@@ -1,4 +1,3 @@
-import json
 import requests
 import psycopg2
 from config import config
@@ -32,10 +31,6 @@ def main():
 
                 fill_vacancies_table(cur, vacancies)
                 print("Данные в vacancies успешно добавлены")
-
-                # cur.execute('SELECT * FROM vacancies')
-                # rec = cur.fetchall()
-                # print(rec)
 
     except(Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -99,9 +94,10 @@ def get_vacancies() -> list:
         response = requests.get('https://api.hh.ru/vacancies', params=search_params).json()
 
         # Проходим по всем страницам с искомым запросом и сохраняем все вакансии в список
-        while search_params['page'] < 2 and response['items']:
+        while search_params['page'] < 10 and response['items']:
             for vacancy in response['items']:
 
+                # Отсекаем вакансии, в которых ЗП указана не в рублях
                 if vacancy.get('salary'):
                     if vacancy.get('salary').get('currency') != 'RUR':
                         continue
@@ -110,6 +106,7 @@ def get_vacancies() -> list:
             search_params['page'] += 1
             response = requests.get('https://api.hh.ru/vacancies', params=search_params).json()
         print('.', end='')
+    print()
     return list_with_vacancies
 
 
@@ -131,6 +128,7 @@ def fill_vacancies_table(cur, vacancies: list) -> None:
     for vacancy in vacancies:
         vacancy_name = vacancy['name']
         vacancy_url = vacancy['alternate_url']
+        # Делаем доп. проверку для ЗП, т.к. она не всегда указана
         if vacancy.get('salary'):
             salary_from = vacancy['salary'].get('from')
             salary_to = vacancy['salary'].get('to')
@@ -141,16 +139,3 @@ def fill_vacancies_table(cur, vacancies: list) -> None:
                     INSERT INTO vacancies (vacancy_name, url, salary_from, salary_to, employer_id)
                     VALUES (%s, %s, %s, %s, %s)
                     """, (vacancy_name, vacancy_url, salary_from, salary_to, employer_id))
-
-
-
-
-if __name__ == '__main__':
-    main()
-
-
-# data = get_vacancies()
-# with open('abc.json', 'w', encoding='utf-8') as f:
-#     json.dump(data, f, ensure_ascii=False, indent=2)
-
-
