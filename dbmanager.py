@@ -1,5 +1,5 @@
 import psycopg2
-from utils import DB_NAME, main
+from utils import DB_NAME, db_preparation
 from config import config
 
 
@@ -7,7 +7,7 @@ class DBManager:
     """Класс для работы с базой данных по вакансиям"""
     def __init__(self):
         # Создаём нужную БД, получаем данные от api.hh.ru, заполняем БД данными по вакансиям
-        main()
+        db_preparation()
         # Список параметров для подключения к БД
         self.params = config()
         self.params.update({'dbname': DB_NAME})
@@ -117,12 +117,3 @@ class DBManager:
             if self.conn is not None:
                 self.conn.close()
         return result
-
-
-if __name__ == '__main__':
-    a = DBManager()
-    print(a.get_companies_and_vacancies_count())
-    print(a.get_vacancies_with_keyword('Java Экология'))
-    print(a.get_avg_salary())
-    print(a.get_vacancies_with_higher_salary())
-    print(a.get_all_vacancies())

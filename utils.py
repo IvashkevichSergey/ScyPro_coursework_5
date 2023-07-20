@@ -6,7 +6,7 @@ from config import config
 DB_NAME = 'hh_vacancies'
 
 
-def main():
+def db_preparation():
     # Получаем список параметров для подключения к БД
     params = config()
     # Создаём переменную для соединения с БД
